@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<title>User Page</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" > </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" > </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        username = $.cookie('current_user');
+        $("#title").text("Welcome " + username);
+        cat = [];
+        total = [];
+        arr = [];
+
+        var chart = Highcharts.chart('container', {
+            chart: {
+                renderTo: 'Chart-Top-Activity',
+                    type: 'bar'
+            },
+            tooltip: {
+                enabled: true
+            },
+            title: {
+                text: 'Most viewed topics by the user'
+            },
+            subtitle:{
+              text: 'Click on any bar to see recommended links for the topic'
+            },
+            xAxis: {
+                categories: cat
+            },
+            yAxis: {
+                title: {
+                    text: '',
+                        margin: 10
+                },
+                labels: {
+                    enabled: true
+                }
+            },
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    events: {
+                        click: function (event) {
+                            use = this.name;
+                            $.ajax({
+                                type: "GET",
+                                url: "/users/most_visited_links/" + this.name + "/html/" + event.point.name,
+                                success: function(response) {
+                                   // console.log(response);
+                                    var ul = document.getElementById("list");
+                                    $(ul).empty();
+                                    for(var i=0; i< response.length; i++){
+                                        var a = document.createElement("a");
+                                        var li = document.createElement("li");
+                                        a.textContent = response[i].url;
+                                        a.setAttribute('href', response[i].url);
+                                        a.setAttribute('target', "_blank");
+                                        li.appendChild(a);
+                                        ul.appendChild(li);
+                                    }
+                                    // $('#history_table').append(table);
+                                    var div1 = document.getElementById("display_links");
+                                    div1.style.display = "block";
+
+                                    var h1 = document.getElementById("h1");
+                                    var h2 = document.getElementById("h2");
+                                   // alert(use);
+                                    if(use == "Total"){
+                                      //  alert("here");
+                                        h1.style.display = "none";
+                                        h2.style.display = "block";
+                                    }
+                                    else {
+                                        h1.style.display = "block";
+                                        h2.style.display = "none";
+                                    }
+                                },
+                                error: function(response){
+                                    console.log("error");
+                                    console.log(response);
+                                }
+                            });
+                        }
+                    },
+                }
+            },
+            series: [{
+                showInLegend: true,
+                dataLables: {
+                    enabled: true
+                },
+                name: username,
+                data: []
+            }, {
+                showInLegend: true,
+                dataLables: {
+                    enabled: true
+                },
+                name: "Total",
+                data: []
+            }]
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "/users/user_activity/" + username,
+            success: function(response) {
+                for(var i = 0 ; i < response.length ; i++){
+                    cat.push(response[i].html);
+                    arr.push([response[i].html , response[i].count]);
+                    total.push([response[i].html, response[i].total]);
+                }
+                chart.series[0].setData(arr);
+                chart.series[1].setData(total);
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    });
+
+
+</script>
+<body>
+<div>
+    <h3 id= "title" style="text-align: center"></h3>
+</div>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">WebSiteName</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><form action = "/users" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Home </button> </form></li>
+            <li>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Visualize
+                    <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li> <form action = "/charts" method = "GET"> <button style="border: none; background-color: transparent" type ="submit" > Visualize </button> </form></li>
+                    <li><form action = "/topics_charts" method = "GET"> <button style="background-color: transparent; border: none" type ="submit" > Topics Interested </button> </form> </li>
+                </ul>
+            </li>
+            <li class="active"><form action = "/recommender" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" >Recommender</button> </form></li>
+            <li><button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" onclick=" window.open('https://stackoverflow.com/questions/tagged/java?sort=frequent&pageSize=15','_blank')"> Stack Overflow</button></li>
+            <li><form action = "/viewlogs" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Events </button> </form></li>
+            <li><form action = "/logactions" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Actions Description </button> </form></li>
+            <li><form action = "/logout" method = "POST"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Out </button> </form></li>
+        </ul>
+    </div>
+</nav>
+<table>
+    <tr>
+        <td>
+        <div id="container" style="width: 650px; height: 450px; margin: 10px "></div> </td>
+        <td id = "display_links" style="display: none; border: solid" >
+            <div class="container1"  style="width: 450px; height: 300px; margin: 20px; overflow-y: scroll;">
+                <h4 id = "h1" style="display: none"> Links for the topic visited by the user</h4>
+                <h4 id = "h2" style="display: none"> Recommended Links for the topic visited by most of the users</h4>
+                <ol id="list" style="background-color: white"> </ol>
+            </div>
+        </td>
+        </tr>
+</table>
+<div style="border: solid; margin: 50px;">
+<h1>Conclusion</h1>
+    <br>
+<b>Explanation</b> :
+<br>From the above<b> Column graph </b> , we can compare the tags visited by user with the other user. The count here shows the number of times he/she has visited by searching for problems related to the tags. By clicking the tags we can also see the distinct links he or she have visited for that particular tag. Also we can compare them with how many other users have searched for the same tag and with that can also recommend them some other links for the same topic.
+<br>
+<br>
+<b>Interactions</b> :
+<br>
+1. Mouse Click on bar (for a particular user and a particular topic) will generate the links visited by that user for that particular topic<br>
+2. Mouse Click on bar (for total user of a particular topic) will recommend other links for same topic to the particular user.<br>
+3. Mouse Hover on bar will show tool tip.<br>
+4. Clicking on the links on the div bar can open stackflow links. So, user does not have to copy paste and open the link.<br>
+    <br>
+    <b> Steps to find the result</b><br>
+    1. At the very start you will get user data for the tags compared with the total count for that tag. <br>
+    1. At the very start you will get user data for the tags compared with the total count for that tag. <br>
+    2. Click on a particular tag bar of user to see his links on a div present in the right of the graph.<br>
+    3. Click on the total like to see recommendation for that particular tags <br>
+    <b>Patterns</b>
+<br>With this we can conclude what are the topics which user is really interested in, so in future this pattern can help us recommend him better links. Also he is able to see other links which will give him more insight on the problem of that particular topic. Since the dataset on a particular website is not very large we can see same data for user and total events which means only that user has visited that site by clicking that tag. <br>
+</div>
+</body>
+</html>
+

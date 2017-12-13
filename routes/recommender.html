@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html>
+<title>Recommender</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    .button {
+        background-color: #2d92a9;
+        border: none;
+        color: white;
+        Code-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 13px;
+        margin: 4px 2px;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+
+</style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script type="text/javascript">
+    var arr = ['oneResponse', 'twoResponse' , 'threeResponse', 'fourResponse' , 'fiveResponse' , 'sixResponse', 'sevenResponse' , 'eightResponse', 'nineResponse' , 'tenResponse' ];
+    var arr3 = ['oneOracleResponse', 'twoOracleResponse' , 'threeOracleResponse', 'fourOracleResponse' , 'fiveOracleResponse' , 'sixOracleResponse', 'sevenOracleResponse' , 'eightOracleResponse', 'nineOracleResponse' , 'tenOracleResponse' ];
+    var arr1 = ['oneTextResponse', 'twoTextResponse' , 'threeTextResponse', 'fourTextResponse' , 'fiveTextResponse' , 'sixTextResponse', 'sevenTextResponse' , 'eightTextResponse', 'nineTextResponse' , 'tenTextResponse' ];
+
+
+    $(document).ready(function () {
+        username = $.cookie('current_user');
+        $("#title").text("Welcome " + username);
+
+
+    });
+
+    function requestData(request){
+        //console.log("hhhhhh" + request.id);
+        queryId = request.id
+        var id = queryId.substring(0, queryId.length - "Content".length);
+       // var queryText = "Instance variables: These are variables that are used to store the state of an object (for example, id). Every object created from a class definition would have its own copy of the variable. It is valid for and occupies storage for as long as the corresponding object is in memory."
+
+        var queryText = document.getElementById(id).textContent;
+        if(queryText == ''){
+            queryText = document.getElementById(id).value;
+        }
+        console.log(queryText);
+        var query = {
+            size: 10,
+            query: {
+                match: {
+                    _all: queryText
+                }
+            }
+        };
+
+        $('.oneResponse').show();
+        $('.twoResponse').hide();
+        $('.threeResponse').hide();
+        $('.fourResponse').hide();
+        $('.fiveResponse').hide();
+        $('.sixResponse').hide();
+        $('.sevenResponse').hide();
+        $('.eightResponse').hide();
+        $('.nineResponse').hide();
+        $('.tenResponse').hide();
+
+        for(i = 0 ; i < arr.length ;i++) {
+            document.getElementsByClassName(arr[i]).innerHTML = "";
+            document.getElementsByClassName(arr1[i]).innerHTML = "";
+            document.getElementsByClassName(arr3[i]).innerHTML = "";
+
+        }
+
+
+        $.ajax({
+            type: "POST",
+            datatype: "json",
+            crossDomain: "true",
+            data: JSON.stringify(query),
+            url: "http://localhost:9200/wiki_java/java/_search",
+            success: function(response) {
+
+                for(i = 0 ; i < response.hits.hits.length ; i++){
+                    var x = "<h2><u>    " +  response.hits.hits[i]._source.heading + "</u></h2><h5><a href= '" + response.hits.hits[i]._source.url + "'>(Check Website for more information)</a></h4><br>" + response.hits.hits[i]._source.html;
+                    document.getElementsByClassName(arr[i])[0].innerHTML = x
+                }
+
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    }
+
+    function requestText(request){
+
+        queryId = request.id
+        var id = queryId.substring(0, queryId.length - "Texty".length);
+        // var queryText = "Instance variables: These are variables that are used to store the state of an object (for example, id). Every object created from a class definition would have its own copy of the variable. It is valid for and occupies storage for as long as the corresponding object is in memory."
+
+        var queryText = document.getElementById(id).textContent;
+        if(queryText == ''){
+            queryText = document.getElementById(id).value;
+        }
+        console.log(queryText);
+        var query = {
+            size: 10,
+            query: {
+                match: {
+                    _all: queryText
+                }
+            }
+        };
+
+        $('.oneTextResponse').show();
+        $('.twoTextResponse').hide();
+        $('.threeTextResponse').hide();
+        $('.fourTextResponse').hide();
+        $('.fiveTextResponse').hide();
+        $('.sixTextResponse').hide();
+        $('.sevenTextResponse').hide();
+        $('.eightTextResponse').hide();
+        $('.nineTextResponse').hide();
+        $('.tenTextResponse').hide();
+
+        for(i = 0 ; i < arr.length ;i++) {
+            document.getElementsByClassName(arr[i]).innerHTML = "";
+            document.getElementsByClassName(arr1[i]).innerHTML = "";
+            document.getElementsByClassName(arr3[i]).innerHTML = "";
+        }
+
+
+        $.ajax({
+            type: "POST",
+            datatype: "json",
+            crossDomain: "true",
+            data: JSON.stringify(query),
+            url: "http://localhost:9200/wiki_java/java/_search",
+            success: function(response) {
+
+                for(i = 0 ; i < response.hits.hits.length ; i++){
+                    var x = "<h2><u>    " +  response.hits.hits[i]._source.heading + "</u></h2><h5><a href= '" + response.hits.hits[i]._source.url + "'>(Check Website for more information)</a></h4><br>" + response.hits.hits[i]._source.content;
+                    document.getElementsByClassName(arr1[i])[0].innerHTML = x
+                }
+
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    }
+
+    function requestCode(request){
+        queryId = request.id
+        var id = queryId.substring(0, queryId.length - "Snippet".length);
+        // var queryCode = "Instance variables: These are variables that are used to store the state of an object (for example, id). Every object created from a class definition would have its own copy of the variable. It is valid for and occupies storage for as long as the corresponding object is in memory."
+
+        var queryText = document.getElementById(id).textContent;
+        if(queryText == ''){
+            queryText = document.getElementById(id).value;
+        }
+        console.log(queryText);
+        var query = {
+            size: 10,
+            query: {
+                match: {
+                    _all: queryText
+                }
+            }
+        };
+
+        document.getElementsByClassName("code-body")[0].innerHTML = "";
+
+        $.ajax({
+            type: "POST",
+            datatype: "json",
+            crossDomain: "true",
+            data: JSON.stringify(query),
+            //url: "https://search-palak-adaptive-2wu4olifzwxwegkcrfr6hgbx5m.us-east-2.es.amazonaws.com/"
+            url: "http://localhost:9200/wiki_java/java/_search",
+            success: function(response) {
+                var x = 1
+                for(i = 0 ; i < response.hits.hits.length ; i++){
+                    if(response.hits.hits[i]._source.code != '') {
+                        var a = "<h4>" + x + ")   " +  response.hits.hits[i]._source.heading + "</h4><h5><a href= '" + response.hits.hits[i]._source.url + "'>(Check Website for more information)</a></h4><br><pre>" + response.hits.hits[i]._source.code + "</pre>";
+                        $('.code-body').append(a);
+                        x = x+1
+                    }
+                }
+
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    }
+
+
+    function requestOracle(request){
+
+        queryId = request.id
+        var id = queryId.substring(0, queryId.length - "JavaOracle".length);
+        // var queryOracle = "Instance variables: These are variables that are used to store the state of an object (for example, id). Every object created from a class definition would have its own copy of the variable. It is valid for and occupies storage for as long as the corresponding object is in memory."
+
+        var queryText = document.getElementById(id).textContent;
+        if(queryText == ''){
+            queryText = document.getElementById(id).value;
+        }
+        console.log(queryText);
+        var query = {
+            size: 10,
+            query: {
+                match: {
+                    _all: queryText
+                }
+            }
+        };
+
+        $('.oneOracleResponse').show();
+        $('.twoOracleResponse').hide();
+        $('.threeOracleResponse').hide();
+        $('.fourOracleResponse').hide();
+        $('.fiveOracleResponse').hide();
+        $('.sixOracleResponse').hide();
+        $('.sevenOracleResponse').hide();
+        $('.eightOracleResponse').hide();
+        $('.nineOracleResponse').hide();
+        $('.tenOracleResponse').hide();
+
+        for(i = 0 ; i < arr.length ;i++) {
+            document.getElementsByClassName(arr[i]).innerHTML = "";
+            document.getElementsByClassName(arr1[i]).innerHTML = "";
+            document.getElementsByClassName(arr3[i]).innerHTML = "";
+        }
+
+
+        $.ajax({
+            type: "POST",
+            datatype: "json",
+            crossDomain: "true",
+            data: JSON.stringify(query),
+            url: "http://localhost:9200/oracle_java/java/_search",
+            success: function(response) {
+
+                for(i = 0 ; i < response.hits.hits.length ; i++){
+                    var x = "<h5><a href= '" + response.hits.hits[i]._source.url + "'>(Check Website for more information)</a></h4><br>" + response.hits.hits[i]._source.content;
+                    document.getElementsByClassName(arr3[i])[0].innerHTML = x
+
+                      }
+
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    }
+
+    function requestToken(request){
+        //console.log("hhhhhh" + request.id);
+        queryId = request.id
+        var id = queryId.substring(0, queryId.length - "Query".length);
+        // var queryText = "Instance variables: These are variables that are used to store the state of an object (for example, id). Every object created from a class definition would have its own copy of the variable. It is valid for and occupies storage for as long as the corresponding object is in memory."
+
+        var queryText = document.getElementById(id).textContent;
+
+        console.log(queryText);
+        var query = {
+            text: queryText
+        };
+
+        document.getElementById('tokenizerTable').textContent = "";
+
+        $.ajax({
+            type: "POST",
+            datatype: "json",
+            crossDomain: "true",
+            data: JSON.stringify(query),
+            url: "http://localhost:9200/wiki_java/_analyze",
+            success: function(response) {
+
+                var table = $('<table id="tokenTable" class="table"></table>');
+                var row=$('<tr></tr');
+                var ind = $('<th></th>').html("Sr No.");
+                var col1=$('<th></th>').html("Token");
+                var col2=$('<th></th>').html("Position");
+                var col3=$('<th></th>').html("Start Offset");
+                var col4=$('<th></th>').html("End Offset");
+                var col5=$('<th></th>').html("Type");
+                row.append(ind);
+                row.append(col1);
+                row.append(col2);
+                row.append(col3);
+                row.append(col4);
+                row.append(col5);
+                table.append(row);
+                for(var i=0;i<response.tokens.length;i++)
+                {
+                    var row=$('<tr></tr');
+                    var ind = $('<td></td>').html(i+1);
+                    row.append(ind);
+                    var col1=$('<td></td>').html(response.tokens[i].token);
+                    row.append(col1);
+                    var col2=$('<td></td>').html(response.tokens[i].position);
+                    row.append(col2);
+                    var col3=$('<td></td>').html(response.tokens[i].start_offset);
+                    row.append(col3);
+                    var col4=$('<td></td>').html(response.tokens[i].end_offset);
+                    row.append(col4);
+                    var col5=$('<td></td>').html(response.tokens[i].type.substring(1,response.tokens[i].type.length - 1));
+                    row.append(col5);
+                    table.append(row);
+                }
+                $('#tokenizerTable').append(table);
+
+
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    }
+
+    function showDiv(id){
+        divId = id.id;
+        if(divId == 'oneList') {
+            $('.oneResponse').show();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'twoList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').show();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'threeList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').show();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'fourList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').show();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'fiveList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').show();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'sixList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').show();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'sevenList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').show();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'eightList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').show();
+            $('.nineResponse').hide();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'nineList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').show();
+            $('.tenResponse').hide();
+        }
+        else if(divId == 'tenList'){
+            $('.oneResponse').hide();
+            $('.twoResponse').hide();
+            $('.threeResponse').hide();
+            $('.fourResponse').hide();
+            $('.fiveResponse').hide();
+            $('.sixResponse').hide();
+            $('.sevenResponse').hide();
+            $('.eightResponse').hide();
+            $('.nineResponse').hide();
+            $('.tenResponse').show();
+        }
+        else if(divId == 'oneTextList') {
+            $('.oneTextResponse').show();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'twoTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').show();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'threeTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').show();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'fourTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').show();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'fiveTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').show();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'sixTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').show();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'sevenTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').show();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'eightTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').show();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'nineTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').show();
+            $('.tenTextResponse').hide();
+        }
+        else if(divId == 'tenTextList'){
+            $('.oneTextResponse').hide();
+            $('.twoTextResponse').hide();
+            $('.threeTextResponse').hide();
+            $('.fourTextResponse').hide();
+            $('.fiveTextResponse').hide();
+            $('.sixTextResponse').hide();
+            $('.sevenTextResponse').hide();
+            $('.eightTextResponse').hide();
+            $('.nineTextResponse').hide();
+            $('.tenTextResponse').show();
+        }
+        else if(divId == 'oneCodeList') {
+            $('.oneCodeResponse').show();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'twoCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').show();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'threeCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').show();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'fourCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').show();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'fiveCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').show();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'sixCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').show();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'sevenCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').show();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'eightCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').show();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'nineCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').show();
+            $('.tenCodeResponse').hide();
+        }
+        else if(divId == 'tenCodeList'){
+            $('.oneCodeResponse').hide();
+            $('.twoCodeResponse').hide();
+            $('.threeCodeResponse').hide();
+            $('.fourCodeResponse').hide();
+            $('.fiveCodeResponse').hide();
+            $('.sixCodeResponse').hide();
+            $('.sevenCodeResponse').hide();
+            $('.eightCodeResponse').hide();
+            $('.nineCodeResponse').hide();
+            $('.tenCodeResponse').show();
+        }
+        else if(divId == 'oneOracleList') {
+            $('.oneOracleResponse').show();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'twoOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').show();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'threeOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').show();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'fourOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').show();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'fiveOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').show();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'sixOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').show();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'sevenOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').show();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'eightOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').show();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'nineOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').show();
+            $('.tenOracleResponse').hide();
+        }
+        else if(divId == 'tenOracleList'){
+            $('.oneOracleResponse').hide();
+            $('.twoOracleResponse').hide();
+            $('.threeOracleResponse').hide();
+            $('.fourOracleResponse').hide();
+            $('.fiveOracleResponse').hide();
+            $('.sixOracleResponse').hide();
+            $('.sevenOracleResponse').hide();
+            $('.eightOracleResponse').hide();
+            $('.nineOracleResponse').hide();
+            $('.tenOracleResponse').show();
+        }
+
+    }
+
+
+</script>
+</head>
+<body>
+<div>
+    <h3 id= "title" style="text-align: center"></h3>
+</div>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">AdaptiveWeb</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><form action = "/users" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Home </button> </form></li>
+            <li>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Visualize
+                    <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li> <form action = "/charts" method = "GET"> <button style="border: none; background-color: transparent" type ="submit" > Visualize </button> </form></li>
+                    <li><form action = "/topics_charts" method = "GET"> <button style="background-color: transparent; border: none" type ="submit" > Topics Interested </button> </form> </li>
+                </ul>
+            </li>
+            <li class="active"><form action = "/recommender" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" >Recommender</button> </form></li>
+            <li><button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" onclick=" window.open('https://stackoverflow.com/questions/tagged/java?sort=frequent&pageSize=15','_blank')"> Stack Overflow</button></li>
+            <li><form action = "/viewlogs" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Events </button> </form></li>
+            <li><form action = "/logactions" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Actions Description </button> </form></li>
+            <li><form action = "/logout" method = "POST"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Out </button> </form
+        </ul>
+    </div>
+</nav>
+
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="input-group" style="margin-left: 100px">
+                <input type="text" class="form-control" placeholder="Search" id="eleven"/>
+                <div class="input-group-btn">
+                    <button class="btn btn-primary" type="submit" id="elevenContent"  data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+                        <span class="glyphicon glyphicon-search"> Wikibook</span>
+                    </button>
+                    <button class="btn btn-primary" type="submit"id="elevenJavaOracle" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+                        <span class="glyphicon glyphicon-search"> Oracle</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <button class="btn btn-primary" style="margin-left:340px" type="submit" data-toggle="modal" data-target="#explanationModal">Explanation</button>
+        </div>
+    </div>
+<br>
+<h4 align="center">Stack Overflow 10 posts</h4>
+<table style="border: solid; margin-left: 5px; margin-right: 10px">
+    <tr>
+        <td style="border: solid;">
+            <b>1 Text :</b>
+            <p id = "one">
+                I was presented with this question in an end of module open book exam today and found myself lost. i was reading Head first Javaand both definitions seemed to be exactly the same. i was just wondering what the MAIN difference was for my own piece of mind. i know there are a number of similar questions to this but, none i have seen which provide a definitive answer.Thanks, Darren
+            </p>
+            <input id="oneQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="oneContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook" data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="oneTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="oneSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="oneJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>2 Text :</b>
+            <p id = "two">
+                Inheritance is when a 'class' derives from an existing 'class'.So if you have a Person class, then you have a Student class that extends Person, Student inherits all the things that Person has.There are some details around the access modifiers you put on the fields/methods in Person, but that's the basic idea.For example, if you have a private field on Person, Student won't see it because its private, and private fields are not visible to subclasses.Polymorphism deals with how the program decides which methods it should use, depending on what type of thing it has.If you have a Person, which has a read method, and you have a Student which extends Person, which has its own implementation of read, which method gets called is determined for you by the runtime, depending if you have a Person or a Student.It gets a bit tricky, but if you do something likePerson p = new Student();p.read();the read method on Student gets called.Thats the polymorphism in action.You can do that assignment because a Student is a Person, but the runtime is smart enough to know that the actual type of p is Student.Note that details differ among languages.You can do inheritance in javascript for example, but its completely different than the way it works in Java. </p>
+
+            <input id="twoQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="twoContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="twoTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="twoSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="twoJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>3 Text :</b>
+            <p id = "three">
+                Polymorphism: The ability to treat objects of different types in a similar manner.Example: Giraffe and Crocodile are both Animals, and animals can Move.If you have an instance of an Animal then you can call Move without knowing or caring what type of animal it is.Inheritance: This is one way of achieving both Polymorphism and code reuse at the same time.Other forms of polymorphism:There are other way of achieving polymorphism, such as interfaces, which provide only polymorphism but no code reuse (sometimes the code is quite different, such as Move for a Snake would be quite different from Move for a Dog, in which case an Interface would be the better polymorphic choice in this case.In other dynamic languages polymorphism can be achieved with Duck Typing, which is the classes don't even need to share the same base class or interface, they just need a method with the same name.Or even more dynamic like Javascript, you don't even need classes at all, just an object with the same method name can be used polymorphically.
+             </p>
+            <input id="threeQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="threeContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="threeTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="threeSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="threeJavOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>4 Text :</b>
+            <p id = "four">
+                I found out that the above piece of code is perfectly legal in Java. I have the following questions. ThanksAdded one more question regarding Abstract method classes.
+            </p>
+            <input id="fourQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="fourContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="fourTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="fourSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="fourJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>5 Text :</b>
+            <p id = "five">
+                You can make a deep copy serialization without creating some files. Copy: Restore:
+            </p>
+            <b>Code Snippet :</b>
+            <pre>
+                public class TestClass{public static void main(String[] args)
+                {TestClass t = new TestClass();}private static void testMethod()
+                {abstract class TestMethod{int a;int b;int c;abstract void implementMe();}
+                class DummyClass extends TestMethod{void implementMe(){}}D
+                ummyClass dummy = new DummyClass();}}
+            </pre>
+
+            <input id="fiveQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="fiveContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="fiveTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="fiveSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="fiveJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>6 Text :</b>
+            <p id = "six">
+                In java it's a bit difficult to implement a deep object copy function. What steps you take to ensure the original object and the cloned one share no reference?
+            </p>
+
+            <input id="sixQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="sixContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="sixTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="sixSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="sixJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>7 Text :</b>
+            <p id = "seven">
+                Java has the ability to create classes at runtime. These classes are known as Synthetic Classes or Dynamic Proxies. See for more information. Other open-source libraries, such as and also allow you to generate synthetic classes, and are more powerful than the libraries provided with the JRE. Synthetic classes are used by AOP (Aspect Oriented Programming) libraries such as Spring AOP and AspectJ, as well as ORM libraries such as Hibernate.
+            </p>
+            <b>Code Snippet:</b>
+            <pre>
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(bos);
+                oos.writeObject(object);oos.flush();oos.close();bos.close();
+                byte[] byteData = bos.toByteArray();;
+                ByteArrayInputStream bais = new ByteArrayInputStream(byteData);
+                (Object) object = (Object) new ObjectInputStream(bais).readObject();
+            </pre>
+
+            <input id="sevenQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="sevenContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="sevenTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="sevenSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="sevenJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>8 Text :</b>
+            <p id = "eight">
+                A safe way is to serialize the object, then deserialize.This ensures everything is a brand new reference.about how to do this efficiently. Caveats: It's possible for classes to override serialization such that new instances are created, e.g. for singletons.Also this of course doesn't work if your classes aren't Serializable.
+            </p>
+
+            <input id="eightQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="eightContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook  " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="eightTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="eightSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="eightJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b>9 Text : </b>
+            <p id = "nine">
+               comment this code
+            </p>
+
+            <b>Code Snippet :</b>
+            <pre>
+                /*if (savedinstancestate == null) {
+                getsupportfragmentmanager().begintransaction().add(
+                r.id.container  new placeholderfragment())
+                .commit(); }*/
+            </pre>
+            <input id="nineQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+            <input id="nineContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="nineTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="nineSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="nineJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border: solid;">
+            <b> 10.  Text : </b>
+            <p id = "ten">
+                in a class i can have as many constructors as i want with different argument types. i made all the constructors as private it didn't give any error because my implicit default constructor was public but when i declared my implicit default constructor as private then its showing an error while extending the class.  why?       this works fine         this can not be inherited
+            </p>
+
+            <b> Code Snippet : </b>
+            <pre>
+                public class demo4  {
+                    private string name;
+                    private int age;
+                    private double sal;
+                    private demo4(string name  int age) {
+                    this.name=name;
+                    this.age=age;}
+                    demo4(string name) {   this.name=name;   }
+                    demo4() {         this(\"unknown\"  20);    this.sal=2000;     }
+                    void show(){         system.out.println(\"name\"+name);
+                    system.out.println(\"age: \"+age);     } }
+
+                    public class demo4  {     private string name;
+                        private int age;
+                        private double sal;
+                        private demo4(string name  int age) {
+                         this.name=name;         this.age=age;
+                    }
+                     demo4(string name) {         this.name=name;     }
+                    private demo4() {         this(\"unknown\"  20);         this.sal=2000;}
+                    void show() {         system.out.println(\"name\"+name);
+                    system.out.println(\"age: \"+age);
+                    }
+                }
+            </pre>
+            <input id="tenQuery" style="background-color: #1CB94A" class= "button" type="button" value="Query Processing Analysis" data-toggle="modal" data-target="#queryAnalysisModal" onclick="requestToken(this)">
+
+
+            <input id="tenContent" style="margin-left: 750px" class= "button" type="button" value="Java WikiBook " data-toggle="modal" data-target="#myModal" onclick="requestData(this)">
+            <input id="tenTexty" class= "button" type="button" value="Text" data-toggle="modal" data-target="#myModal2" onclick="requestText(this)">
+            <input id="tenSnippet" class= "button" type="button" value="Code " data-toggle="modal" data-target="#myModal3" onclick="requestCode(this)">
+            <input id="tenJavaOracle" class= "button" type="button" value="Oracle Docs" data-toggle="modal" data-target="#myModal4" onclick="requestOracle(this)">
+
+        </td>
+    </tr>
+</table>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Java Wiki Section</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="pagination">
+                    <li id = "oneList" onclick="showDiv(this)"><a href = "#">1</a></li>
+                    <li id = "twoList" onclick="showDiv(this)"><a href = "#">2</a></li>
+                    <li id = "threeList" onclick="showDiv(this)"><a href = "#">3</a></li>
+                    <li id = "fourList" onclick="showDiv(this)"><a href = "#">4</a></li>
+                    <li id = "fiveList" onclick="showDiv(this)"><a href = "#">5</a></li>
+                    <li id = "sixList" onclick="showDiv(this)"><a href = "#">6</a></li>
+                    <li id = "sevenList" onclick="showDiv(this)"><a href = "#">7</a></li>
+                    <li id = "eightList" onclick="showDiv(this)"><a href = "#">8</a></li>
+                    <li id = "nineList" onclick="showDiv(this)"><a href = "#">9</a></li>
+                    <li id = "tenList" onclick="showDiv(this)"><a href = "#">10</a></li>
+                </ul>
+                <div class="oneResponse" hidden>
+                </div>
+                <div class="twoResponse" hidden>
+                </div>
+                <div class="threeResponse" hidden>
+                </div>
+                <div class="fourResponse" hidden>
+                </div>
+                <div class="fiveResponse" hidden>
+                </div>
+                <div class="sixResponse" hidden>
+                </div>
+                <div class="sevenResponse" hidden>
+                </div>
+                <div class="eightResponse" hidden>
+                </div>
+                <div class="nineResponse" hidden>
+                </div>
+                <div class="tenResponse" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal2" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Text Only</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="pagination">
+                    <li id = "oneTextList" onclick="showDiv(this)"><a href = "#">1</a></li>
+                    <li id = "twoTextList" onclick="showDiv(this)"><a href = "#">2</a></li>
+                    <li id = "threeTextList" onclick="showDiv(this)"><a href = "#">3</a></li>
+                    <li id = "fourTextList" onclick="showDiv(this)"><a href = "#">4</a></li>
+                    <li id = "fiveTextList" onclick="showDiv(this)"><a href = "#">5</a></li>
+                    <li id = "sixTextList" onclick="showDiv(this)"><a href = "#">6</a></li>
+                    <li id = "sevenTextList" onclick="showDiv(this)"><a href = "#">7</a></li>
+                    <li id = "eightTextList" onclick="showDiv(this)"><a href = "#">8</a></li>
+                    <li id = "nineTextList" onclick="showDiv(this)"><a href = "#">9</a></li>
+                    <li id = "tenTextList" onclick="showDiv(this)"><a href = "#">10</a></li>
+                </ul>
+                <div class="oneTextResponse" hidden>
+                </div>
+                <div class="twoTextResponse" hidden>
+                </div>
+                <div class="threeTextResponse" hidden>
+                </div>
+                <div class="fourTextResponse" hidden>
+                </div>
+                <div class="fiveTextResponse" hidden>
+                </div>
+                <div class="sixTextResponse" hidden>
+                </div>
+                <div class="sevenTextResponse" hidden>
+                </div>
+                <div class="eightTextResponse" hidden>
+                </div>
+                <div class="nineTextResponse" hidden>
+                </div>
+                <div class="tenTextResponse" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="myModal3" role="dialog">
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Code Snippets</h4>
+        </div>
+        <div class="modal-body">
+            <div class = "code-body">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="myModal4" role="dialog">
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Java Oracle TM Tutorial</h4>
+        </div>
+        <div class="modal-body">
+            <ul class="pagination">
+                <li id = "oneOracleList" onclick="showDiv(this)"><a href = "#">1</a></li>
+                <li id = "twoOracleList" onclick="showDiv(this)"><a href = "#">2</a></li>
+                <li id = "threeOracleList" onclick="showDiv(this)"><a href = "#">3</a></li>
+                <li id = "fourOracleList" onclick="showDiv(this)"><a href = "#">4</a></li>
+                <li id = "fiveOracleList" onclick="showDiv(this)"><a href = "#">5</a></li>
+                <li id = "sixOracleList" onclick="showDiv(this)"><a href = "#">6</a></li>
+                <li id = "sevenOracleList" onclick="showDiv(this)"><a href = "#">7</a></li>
+                <li id = "eightOracleList" onclick="showDiv(this)"><a href = "#">8</a></li>
+                <li id = "nineOracleList" onclick="showDiv(this)"><a href = "#">9</a></li>
+                <li id = "tenOracleList" onclick="showDiv(this)"><a href = "#">10</a></li>
+            </ul>
+            <div class="oneOracleResponse" hidden>
+            </div>
+            <div class="twoOracleResponse" hidden>
+            </div>
+            <div class="threeOracleResponse" hidden>
+            </div>
+            <div class="fourOracleResponse" hidden>
+            </div>
+            <div class="fiveOracleResponse" hidden>
+            </div>
+            <div class="sixOracleResponse" hidden>
+            </div>
+            <div class="sevenOracleResponse" hidden>
+            </div>
+            <div class="eightOracleResponse" hidden>
+            </div>
+            <div class="nineOracleResponse" hidden>
+            </div>
+            <div class="tenOracleResponse" hidden>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="queryAnalysisModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Query Analysis</h4>
+            </div>
+            <div class="modal-body">
+                <div id="tokenizerTable">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="explanationModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Explanation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Crawling</a>
+                                </h4>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    I have used <b>scrapy</b> library in <b>python</b> to crawl Java docs as well as Java Oracle Tutorial website. Data is crawled by 2 spiders (one for JavaWikiBook and another for Java Oracle TM tutorials) :
+                                    <ul>
+                                        <li>For JavaWikiBook - all headings are being crawled, then the textual data as well as the code snippets for each heading is being crawled.
+                                           <br><b>No. of webpages crawled: more than 187 </b></li>
+                                        <li>For Java Oracle TM tutorials - all the pages are being crawled on the basis of page-content div.
+                                            <br><b>No. of webpages crawled: more than 2000 </b>
+                                        </li>
+                                    </ul>
+                                    After the data is crawled it is passed through elastic search pipeline to get indexed.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Indexing</a>
+                                </h4>
+                            </div>
+                            <div id="collapse2" class="panel-collapse collapse">
+                                <div class="panel-body">In order to index the data crawled from websites I have used a Lucene based library ElasticSearch It works in the following way :
+                                <ul>
+                                    <li>Documents are indexed—stored and made searchable—by using the <b>index API</b> of ElasticSearch and then passed through a custom analyzer</li>
+                                    <li>The data that comes from the crawled website is first <b>tokenized</b> (breaking into words) using standard tokeniser of ElasticSearch. The standard tokenizer provides grammar based tokenization <b> (Unicode Text Segmentation algorithm) </b> and works well for most languages.</li>
+                                    <li>The tokenized data is then <b>stemmed</b> i.e words are reduced to their root form. The algorithm used by elastic search to stem the data is <b>Porter Stemming</b> algorithm</li>
+                                    <li>The stemmed data is further used to remove <b>stop words</b> from it. Filtering stop words help improving accuracy of content indexed or searched. To remove stop words we have used english library where ElasticSearch defines a pre set of words that can be removed.</li>
+                                    <li>The tokens are then stored in an index file where each token is associated with the documents that contain it.</li>
+                                    <li> The query that we search for is then passed through the same analyser to build query tokens and then used to look the index data to get the recommended data </li>
+                                </ul>
+                                </div>
+                            </div>
+                            </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Originality</a>
+                                </h4>
+                            </div>
+                            <div id="collapse3" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <ol>
+                                        <li>I have implemented a <b>search bar</b>> to search for a customized query other than the given queries</li>
+                                        <li>This search bar provides 2 options to search for a query in a given <b> Java Wikibook </b> or <b> Java Oracle TM tutorials. </b></li>
+                                        <li>Apart from this for each given query I have shown an option that shows how a query is processed (<b>Query Processing</b>) before it is used to lookup in a document</li>
+                                        <li>For the given query user is also given an option to either view the section of the <b>recommended web page</b>, <b>scrapped content</b> or <b>code snippets</b></li>
+                                        <li>For each post to view recommended results, a <b>pagination</b> is done in pop up box to view per recommendation per query per page</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">Similarity Measure</a>
+                            </h4>
+                        </div>
+                        <div id="collapse5" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <p>ElasticSearch uses <b>BM25</b> similarity measure by default. This is a TF/IDF based similarity that has built-in tf normalization and is supposed to work better for short fields. BM25 is a bag-of-words retrieval function that ranks a set of documents based on the query terms appearing in each document, regardless of the inter-relationship between the query terms within a document (e.g., their relative proximity). It is not a single function, but actually a whole family of scoring functions, with slightly different components and parameters. Okapi BM25 (BM stands for Best Matching) is a ranking function used by search engines to rank matching documents according to their relevance to a given search query.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">Extra Credits</a>
+                            </h4>
+                        </div>
+                        <div id="collapse4" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <ul>
+                                    <li> I have crawled and indexed each and every <b>Java Oracle TM tutorial</b>. We can type something in the search box or can search for the given posts and get recommended data from Oracle website. </li>
+                                    <li> Stemming is done using <b>Porter Stemming alogrithm</b>. With the help of this algorithm we can easily get the stem of many words and index data according to that. This helps in reducing inflected or derived words.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<title>View logs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" > </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" > </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        username = $.cookie('current_user');
+        $("#title").text("Welcome " + username + ",");
+    });
+
+    $(document).ready(function () {
+        username = $.cookie('current_user');
+        $("#title").text("Welcome " + username);
+
+        $.ajax({
+            type: "GET",
+            url: "/viewlogs/" + username,
+            success: function(response) {
+                var table = $('<table></table>') ;
+                var row = $('<tr></tr>');
+                var heading = $('<th></th>').text("Event Name");
+                var heading2 = $('<th></th>').text("Event Type");
+                var heading3= $('<th></th>').text("Stack Overflow Url");
+                var heading4 = $('<th></th>').text("Tags");
+                var heading5 = $('<th></th>').text("Event Start Timestamp");
+                row.append(heading);
+                row.append(heading2);
+                row.append(heading3);
+                row.append(heading4);
+                row.append(heading5);
+                table.append(row);
+                for(var i=0; i< response.length; i++){
+                    var row = $('<tr></tr>');
+                    var col = $('<td></td>').text(response[i].eventName);
+                    row.append(col);
+                    var col1 = $('<td></td>').text(response[i].eventType);
+                    row.append(col1);
+                    var col2 = $('<td></td>').text(response[i].url);
+                    row.append(col2);
+                    var col3 = $('<td></td>').text(response[i].html);
+                    row.append(col3);
+                    var col4 = $('<td></td>').text(response[i].timestamp);
+                    row.append(col4);
+                    table.append(row);
+                }
+                $('#logs_table').append(table);
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    });
+
+</script>
+<body>
+
+<div class="w3-container">
+    <h3 id = "title"></h3>
+</div>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">WebSiteName</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><form action = "/users" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Home </button> </form></li>
+            <li>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Visualize
+                    <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li> <form action = "/charts" method = "GET"> <button style="border: none; background-color: transparent" type ="submit" > Visualize </button> </form></li>
+                    <li><form action = "/topics_charts" method = "GET"> <button style="background-color: transparent; border: none" type ="submit" > Topics Interested </button> </form> </li>
+                </ul>
+            </li>
+            <li class="active"><form action = "/recommender" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" >Recommender</button> </form></li>
+            <li><button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" onclick=" window.open('https://stackoverflow.com/questions/tagged/java?sort=frequent&pageSize=15','_blank')"> Stack Overflow</button></li>
+            <li><form action = "/viewlogs" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Events </button> </form></li>
+            <li><form action = "/logactions" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Actions Description </button> </form></li>
+            <li><form action = "/logout" method = "POST"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Out </button> </form
+        </ul>
+    </div>
+</nav>
+<div id = "logs_table">
+</div>
+</body>
+</html>
+
+
+

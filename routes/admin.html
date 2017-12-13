@@ -1,0 +1,208 @@
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" > </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" > </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                type: "GET",
+                url: "/admin/total_unique_users" ,
+                success: function(response) {
+                  $("#unique_user").text(response[0].count);
+                },
+                error: function(response){
+                    console.log("error");
+                    console.log(response);
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "/admin/total_time" ,
+                success: function(response) {
+                    console.log(response);
+                    $("#time_spent").text(response[0].count);
+                    var avg = Number(response[0].count) / 3;
+                    $("#avg_hour").text(avg);
+                },
+                error: function(response){
+                    console.log("error");
+                    console.log(response);
+                }
+            });
+        });
+
+        var chart;
+        var data;
+        var options;
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+
+        function drawChart() {
+
+
+            data = new google.visualization.DataTable();
+            data.addColumn('date', 'Time of Day');
+            data.addColumn('number', 'Minutes');
+
+             options = {
+                title: 'Number of minutes spend by all the users on a particular day',
+                width: 900,
+                height: 500,
+                hAxis: {
+                    format: 'M/d/yy',
+                    gridlines: {count: 15}
+                },
+                vAxis: {
+                    gridlines: {color: 'none'},
+                    minValue: 0
+                }
+            };
+
+            chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+
+            $.ajax({
+                type: "GET",
+                url: "/admin/date_hour/thirty" ,
+                success: function(response) {
+                    console.log(response);
+                   for(var i = 0 ; i<response.length ; i++){
+                       var d = new Date(response[i].date);
+                       data.addRows([
+                          [new Date(d.getFullYear() , d.getMonth(), d.getDate()) , Number(response[i].hours)]
+                       ]);
+                   }
+
+                    chart.draw(data, options);
+
+                },
+                error: function(response){
+                    console.log("error");
+                    console.log(response);
+                }
+            });
+
+
+        }
+
+        function drawOnChart(days){
+           var data = new google.visualization.DataTable();
+            data.addColumn('date', 'Time of Day');
+            data.addColumn('number', 'Minutes');
+            //data.removeRows(0,data.length);
+            if(days == 30) {
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/date_hour/thirty",
+                    success: function (response) {
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var d = new Date(response[i].date);
+                            data.addRows([
+                                [new Date(d.getFullYear(), d.getMonth(), d.getDate()), Number(response[i].hours)]
+                            ]);
+                        }
+                        chart.draw(data,options);
+                    },
+                    error: function (response) {
+                        console.log("error");
+                        console.log(response);
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/date_hour/seven",
+                    success: function (response) {
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var d = new Date(response[i].date);
+                            data.addRows([
+                                [new Date(d.getFullYear(), d.getMonth(), d.getDate()), Number(response[i].hours)]
+                            ]);
+                        }
+                        chart.draw(data,options);
+                    },
+                    error: function (response) {
+                        console.log("error");
+                        console.log(response);
+                    }
+                });
+            }
+        }
+
+
+    </script>
+</head>
+<body>
+<div class="w3-bar w3-black">
+    <table style="float: right; border: transparent;">
+        <td>
+            <td>
+                <form action = "/index" method = "GET"> <button class="btn btn-danger navbar-btn" style="border: rgba(255,255,255,0.91); border-width: 5px; background-color: #00B7FF;" type ="submit" > User Login/SignUp </button> </form></td>
+    <td>  <form action = "/admin" method = "GET"> <button class="btn btn-danger navbar-btn"   type ="submit" > Admin (Bonus) </button> </form></td></tr>
+    </table>
+</div>
+
+<div>
+    <h1> ADMIN - PANEL ALL USERS SESSION DATA (BONUS)</h1>
+    <table style="border: solid" >
+        <tr>
+            <td style="border: solid">
+                Total Unique Users <h4 id = "unique_user"> </h4>
+                </div>
+<div>
+    Total Time Spent <h4 id = "time_spent"></h4><h5>hours</h5>
+                </div>
+<div>
+                Average Hours Per User <h4 id = "avg_hour"> </h4>
+    </div>
+            </td>
+            <td style="border: solid">
+                <div>
+                <div>
+                    <br>
+                    <br>
+                    <form>
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio" onclick="drawOnChart(7)"> Last 7 Days
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="optradio" checked = checked  onclick="drawOnChart(30)"> Last 30 Days
+                        </label>
+                    </form>
+                </div>
+                <div id="chart_div"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div style="border: solid; margin: 50px;">
+    <h1>Conclusion</h1>
+    <br>
+    <b>Explanation (Why does it matter)</b> :
+    <br> This is a response for <b>bonus</b> question. Here with the help of new UI, (admin panel) we can get an idea of the time spend by user on our website. This can really be helpful to keep analytics of our webiste.
+    <br>
+    <b>Interactions</b> :
+    <br>
+    1. Avg hours spent by user on our website.<br>
+    2. We can see the time spend by all the users for last 7 as well as 30 days by selecting the radio button.
+    <br>
+    <b>Steps to find result: </b> <br>
+    1. Change the radio button to see last 7 or 30 days time spent by all user on our website based on a particular date.
+    <br>
+    <b>Patterns</b>
+    <br>This pattern can give us a general idea of the time spend by users on our websites, and the number of user active at a time on our website.
+</div>
+</body>
+</html>

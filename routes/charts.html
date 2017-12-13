@@ -1,0 +1,322 @@
+		<!DOCTYPE html>
+		<html>
+		<title>Visualize</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+		<style>
+			.button {
+				background-color: #008CBA;
+				border: none;
+				color: white;
+				padding: 15px 32px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 14px;
+				margin: 4px 2px;
+				cursor: pointer;
+			}
+		</style>
+		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+		<script type="text/javascript">
+
+		$(document).ready(function () {
+			username = $.cookie('current_user');
+			$("#title").text("Welcome " + username);
+
+			time_chart = Highcharts.chart('time_chart', {
+			chart: {
+				zoomType: 'x'
+			},
+			title: {
+				text: 'User Events over a span of time'
+			},
+			subtitle: {
+				text: document.ontouchstart === undefined ?
+						'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+			},
+			xAxis: {
+				type: 'datetime',
+				title: {
+					text: 'Date'
+				}
+			},
+			yAxis: {
+				type: 'linear',
+				title: {
+					text: 'Number of Clicks'
+				}
+			},
+			legend: {
+				enabled: false,
+				align: 'right',
+				verticalAlign: 'top',
+				layout: 'vertical',
+				floating: true,
+				backgroundColor: '#FFFFFF'
+			},
+			series: [{
+				type: '',
+				name: username,
+				data: []
+			},
+			{
+				type: '',
+				name: 'average',
+				data: []
+			}
+			]
+		});
+	});
+
+		function request_time_chart_data(){
+			console.log("in button click");
+			var startDate = document.getElementById('from').value;
+			var endDate = document.getElementById('to').value;
+			var event = document.getElementById('dropdown_event_name').value;
+			var graphType =  $("input:radio[name=radio-1]:checked").val();
+
+			$.ajax({
+				type: "GET",
+				data: {"start": startDate , "end": endDate , "event": event},
+				url: "/time_chart",
+				success: function(response) {
+					console.log("to get response");
+					console.log(response);
+					time_chart.legend.update({
+						enabled:true
+					});
+					time_chart.series[0].update({type: graphType});
+					time_chart.series[1].update({type: graphType});
+					//time_chart.series[2].update({type: graphType});
+					converted_response_a = time_chart_response(response , username );
+						time_chart.series[0].setData(
+							converted_response_a
+							);
+					converted_response_b = total_response(response);
+						time_chart.series[1].setData(
+						converted_response_b
+						);
+				/*	converted_response_c = time_chart_response(response , "ccc");
+						time_chart.series[2].setData(
+						converted_response_c
+					);
+					*/
+				},
+				error: function(response){
+					console.log("error");
+					console.log(response);
+				}
+			});
+		}
+		function time_chart_response(response, name){
+			var map = {};
+			var arr = [];
+			for(var i = 0  ; i < response.length ; i++){
+				console.log(response[i].date);
+				if(response[i].name == name){
+				if(map[response[i].date] == null || map[response[i].date] == "" || map[response[i].date] == "NaN")
+					map[response[i].date] = 1;
+				else
+					map[response[i].date] += 1;
+			}
+			}
+
+			for(var key in map){
+				var date = new Date(key);
+				var d = date.getDate();
+				var m = date.getMonth();
+				var y = date.getYear() + 1900;
+				var utc = Date.UTC(y,m,d);
+				console.log(d + " " + m +" "+ y + " " + utc);
+				arr.push([utc,map[key]]);
+			}
+			return arr;
+		}
+
+        function total_response(response){
+            var map = {};
+            var arr = [];
+            for(var i = 0  ; i < response.length ; i++){
+                console.log(response[i].date);
+                    if(map[response[i].date] == null || map[response[i].date] == "" || map[response[i].date] == "NaN")
+                        map[response[i].date] = 1;
+                    else
+                        map[response[i].date] += 1;
+            }
+
+            for(var key in map){
+                var date = new Date(key);
+                var d = date.getDate();
+                var m = date.getMonth();
+                var y = date.getYear() + 1900;
+                var utc = Date.UTC(y,m,d);
+                console.log(d + " " + m +" "+ y + " " + utc);
+                arr.push([utc,map[key]/3]);
+            }
+            return arr;
+        }
+
+		$( function() {
+			var dateFormat = "mm-dd-yy",
+			  from = $( "#from" )
+				.datepicker({
+				  defaultDate: "-1w",
+				  changeMonth: true,
+				  numberOfMonths: 1
+				})
+				.on( "change", function() {
+				  to.datepicker( "option", "minDate", getDate( this ) );
+				}),
+			  to = $( "#to" ).datepicker({
+				defaultDate: "+0D",
+				changeMonth: true,
+				numberOfMonths: 1
+			  })
+			  .on( "change", function() {
+				from.datepicker( "option", "maxDate", getDate( this ) );
+			  });
+
+			function getDate( element ) {
+			  var date;
+			  try {
+				date = $.datepicker.parseDate( dateFormat, element.value );
+			  } catch( error ) {
+				date = null;
+			  }
+
+			  return date;
+			}
+		  } );
+
+		$( function() {
+			$( "input" ).checkboxradio();
+			$( "fieldset" ).controlgroup();
+		  });
+
+		function addValuesToUserDropDown(){
+			var dropdown_values= {} ;
+
+			$.ajax({
+				type: "GET",
+				url: "/dropdown_events",
+				dataType: "json",
+				success: function(response) {
+					dropdown_values = response ;
+					console.log(dropdown_values);
+
+					var select = document.getElementById("dropdown_event_name");
+					$(select).empty();
+					for(var i = 0; i < dropdown_values.length; i++) {
+						var option = document.createElement("option");
+						option.text = dropdown_values[i].eventName;
+						if(option.text != '')
+							select.add(option);
+				}}});
+		}
+
+		</script>
+		</head>
+		<body>
+		<div>
+			<h3 id= "title" style="text-align: center"></h3>
+		</div>
+
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">WebSiteName</a>
+				</div>
+				<ul class="nav navbar-nav">
+					<li class="active"><form action = "/users" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Home </button> </form></li>
+					<li>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Visualize
+							<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li> <form action = "/charts" method = "GET"> <button style="border: none; background-color: transparent" type ="submit" > Visualize </button> </form></li>
+							<li><form action = "/topics_charts" method = "GET"> <button style="background-color: transparent; border: none" type ="submit" > Topics Interested </button> </form> </li>
+						</ul>
+					</li>
+					<li class="active"><form action = "/recommender" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" >Recommender</button> </form></li>
+					<li><button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" onclick=" window.open('https://stackoverflow.com/questions/tagged/java?sort=frequent&pageSize=15','_blank')"> Stack Overflow</button></li>
+					<li><form action = "/viewlogs" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Events </button> </form></li>
+					<li><form action = "/logactions" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Actions Description </button> </form></li>
+					<li><form action = "/logout" method = "POST"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Out </button> </form
+				</ul>
+			</div>
+		</nav>
+		<table style="border: solid; margin-left: 5px; margin-right: 10px">
+			<tr>
+				<td width= "30%" style="border: solid; min-width: 100px ; text-align: center">
+					<h4 style = "text-align: center"> Make changes below to observe patterns between events for the user</h4>
+					<br>
+					<input type="text" id="from" name="from" placeholder="Start Date">
+					<br>
+					<input type="text" id="to" name="to" placeholder="End Date">
+					<br>
+					<br>
+
+
+					<fieldset>
+						<label>Select the type of event: </label>
+						<select id="dropdown_event_name" onclick="addValuesToUserDropDown()">
+							<option selected="selected">select</option>
+						</select>
+					</fieldset>
+
+					<br>
+					<br>
+
+					<fieldset>
+						<legend>Graph Type : </legend>
+						<label for="radio-1">Line Chart  </label>
+						<input type="radio" name="radio-1" id="radio-1" value= "line" checked = checked>
+						<label for="radio-2">   Bar Graph</label>
+						<input type="radio" name="radio-1" id="radio-2" value= "bar">
+					</fieldset>
+
+					<br>
+					<br>
+
+
+					<input id="button" class= "button" type="button" value="Apply Changes" onclick="request_time_chart_data()">
+				</td>
+				<td width = "60%" style="border: solid">
+					<div id="time_chart" style="width:100%; height:500px;"></div>
+				</td>
+		</tr>
+		</table>
+
+		<div style="border: solid; margin: 50px;">
+			<h1>Conclusion</h1>
+			<br>
+			<b>Explanation (Why does it matter)</b> :
+			<br>From the above<b> Line/Bar graph </b> , we can find a pattern of by selecting a particular event and a date range and can see how it changes for that user compared to the average of other users on the same day for that particular event.
+			<br>
+			<br>
+			<b>Interactions</b> :
+			<br>
+			1. Input date range manually or via date range selecter to select a range of date for which user wants to view the event.<br>
+			2. Select event for dynamically populated event list for which we want to see data.<br>
+			3. Mouse Hover on bar will show tool tip.<br>
+			4. Zoom in/ zoom out graph<br>
+			5. Also a provision for user to select which type of graph he wants <br>
+			<br>
+			<b> Steps to find the result</b><br>
+			1. Add data in the form. Select date range for which you want to see event data.<br>
+			2. Select the event name from list of events.<br>
+			3. Select the type of graph<br>
+			4. Click the button. <br>
+			5. Now keep repeating the above steps to see variation in result. You can also select/deselect the key to see particular user or avg data for the event<br>
+			<br>
+			<b>Patterns</b>
+			<br>This pattern can give us a general idea of how events are getting affected over a date range. For example we can find patterns of how much a user is using vote-up/ vote-down. Also, with evens like improve your question, star off we can really see if a user is active on website or not.
+		</div>
+		</body>
+		</html>

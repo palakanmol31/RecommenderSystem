@@ -1,0 +1,25 @@
+{
+  "name": "assign1-palakanmol",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "express-session": "^1.15.5",
+    "fs": "0.0.1-security",
+    "highcharts": "^5.0.14",
+    "jsdom": "^11.2.0",
+    "morgan": "~1.8.1",
+    "mysql": "^2.14.1",
+    "node-highcharts": "0.0.2",
+    "node-jsdom": "^3.1.5",
+    "phantomjs": "^2.1.7",
+    "pug": "~2.0.0-beta11",
+    "serve-favicon": "^2.4.4"
+  }
+}

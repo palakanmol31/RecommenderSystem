@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<title>User Page</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+<style>
+    * {
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    body {
+        background-color: #F2F2F2;
+    }
+
+    .container1 {
+        margin: 0 auto;
+        width: 450px;
+        height: 400px;
+        background-color: #FFF;
+        text-align:center;
+        padding-bottom: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-up: 10px;
+    }
+
+    h3 {
+        text-align: center;
+    }
+
+    #calendar {
+        margin-top: 10px;
+    }
+
+    .event a {
+        background-color: #42B373 !important;
+        background-image :none !important;
+        color: #ffffff !important;
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" > </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" > </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        username = $.cookie('current_user');
+        $("#title").text("Welcome " + username);
+
+        $.ajax({
+            type: "GET",
+            url: "/users/user_history/" + username,
+            success: function(response) {
+                var table = $('<table></table>') ;
+                for(var i=0; i< response.length; i++){
+                    var str = new Date(response[i].date);
+                    var row = $('<tr></tr>').text(str);
+                    table.append(row);
+                }
+                $('#history_table').append(table);
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "GET",
+            url: "/users/active_date/" + username,
+            success: function(response) {
+                var eventDates = {};
+                for(var i = 0; i<response.length ; i++){
+                    eventDates[ new Date(response[i].date)] = new Date( response[i].date ).toString();
+                }
+
+                $('#calendar').datepicker({
+                    beforeShowDay: function( date ) {
+                        var highlight = eventDates[date];
+                        if( highlight ) {
+                            return [true, "event", highlight];
+                        } else {
+                            return [true, '', ''];
+                        }
+                    }
+                });
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "GET",
+            url: "/users/most_visited_links/" + username,
+            success: function(response) {
+                console.log(response);
+                var ul = document.getElementById("list");
+                for(var i=0; i< response.length; i++){
+                    var a = document.createElement("a");
+                    var li = document.createElement("li");
+                    a.textContent = response[i].url;
+                    a.setAttribute('href', response[i].url);
+                    a.setAttribute('target', '_blank');
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                }
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+
+
+    });
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "GET",
+            url: "/users/active_time/" + username,
+            success: function(response) {
+                $("#time").text(response[0].hour + ":00 hours");
+                $("#activity").text(response[0].count);
+            },
+            error: function(response){
+                console.log("error");
+                console.log(response);
+            }
+        });
+
+
+    });
+
+</script>
+<body>
+<div class="w3-container">
+    <h3 id= "title"></h3>
+</div>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Analytics</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><form action = "/users" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Home </button> </form></li>
+            <li>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Visualize
+                    <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li> <form action = "/charts" method = "GET"> <button style="border: none; background-color: transparent" type ="submit" > Visualize </button> </form></li>
+                    <li><form action = "/topics_charts" method = "GET"> <button style="background-color: transparent; border: none" type ="submit" > Topics Interested </button> </form> </li>
+                </ul>
+            </li>
+            <li class="active"><form action = "/recommender" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" >Recommender</button> </form></li>
+            <li><button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" onclick=" window.open('https://stackoverflow.com/questions/tagged/java?sort=frequent&pageSize=15','_blank')"> Stack Overflow</button></li>
+            <li><form action = "/viewlogs" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Events </button> </form></li>
+            <li><form action = "/logactions" method = "GET"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Actions Description </button> </form></li>
+            <li><form action = "/logout" method = "POST"> <button class="btn btn-danger navbar-btn" style="background-color: transparent; border-color: transparent" type ="submit" > Log Out </button> </form
+        </ul>
+    </div>
+</nav>
+
+
+<table style="border: solid; margin-left: 5px; margin-right: 50px" >
+    <tr>
+        <td style="border: solid"><div class = "container1"><br><h4>Login History (Top 15)</h4><h8>For more enteries check database</h8><div id = "history_table"></div></div></td>
+        <td style="border: solid">
+            <div class="container1">
+                <br>
+                <h4>Most Active Days</h4>
+                <h8>Navigate over the months on calender to see active days of each month</h8>
+                <div id="calendar" > </div>
+
+                <h4>Most Active Time Of The Day</h4>
+                <h5 id = "time"></h5>
+            </div>
+        </td>
+
+        <td style="border: solid; margin-right: 20px; margin-left: 10px" >
+            <div class = "container1" style = "text-align: left">
+                <br>
+                <h4> Top 8 links visited by the user : </h4>
+                <ol id="list" style="margin-left: 10px; margin-right: 50px"> </ol>
+            </div>
+        </td>
+    </tr></table>
+<div style="border: solid; margin: 50px;">
+    <h1>Conclusion</h1>
+    <br>
+    <b>Explanation</b> :
+    <br> This small data analytics is given to show user when he is more active on our website and links that he visit the most. This can be helpful in providing user a daily account of his activity on the website.
+</div>
+</body>
+</html>
+
